@@ -8,12 +8,13 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const backendHost = "http://localhost:3001";
+  const backendHost = process.env.REACT_APP_BACKEND_HOST;
   const navigate = useNavigate();
   const location = useLocation();
 
   const login = async (username, password) => {
     setLoading(true);
+    setError("");
     try {
       const response = await axios.post(
         `${backendHost}/login`,
@@ -23,13 +24,20 @@ export default function Login({ onLogin }) {
 
       if (response.data.success) {
         await onLogin();
-        const redirectPath = new URLSearchParams(location.search).get("redirect") || "/files";
+        const redirectPath =
+          new URLSearchParams(location.search).get("redirect") || "/files";
         navigate(redirectPath, { replace: true });
       } else {
-        setError("Invalid username or password");
+        setError(response.data.error || "Invalid username or password");
       }
     } catch (error) {
-      setError("An error occurred. Please try again.");
+      if (error.response) {
+        setError(
+          error.response.data.error || "An error occurred. Please try again."
+        );
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -69,10 +77,10 @@ export default function Login({ onLogin }) {
                 required
               />
             </Form.Group>
-            <Button 
-              variant="secondary" 
-              type="submit" 
-              className="mt-3 w-100" 
+            <Button
+              variant="secondary"
+              type="submit"
+              className="mt-3 w-100"
               disabled={loading}
             >
               {loading ? (
