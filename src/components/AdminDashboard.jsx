@@ -127,7 +127,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="settings-bar d-flex justify-content-between align-items-center p-3">
-        <Form className="d-flex">
+        <Form className="d-flex customForm">
           <Form.Control
             type="text"
             placeholder="Search users..."

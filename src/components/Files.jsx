@@ -338,7 +338,7 @@ export default function Files({ isAdmin }) {
 
       {/* Existing Modals */}
       {/* Upload Modal */}
-      <BootstrapModal
+      <BootstrapModal className="custom-modal"
         show={uploadModalIsOpen}
         onHide={() => setUploadModalIsOpen(false)}
       >
@@ -371,32 +371,32 @@ export default function Files({ isAdmin }) {
       </BootstrapModal>
 
       {/* Rename Modal */}
-      <BootstrapModal show={renameModalIsOpen} onHide={handleCloseRenameModal}>
-        <BootstrapModal.Header closeButton>
-          <BootstrapModal.Title>Rename</BootstrapModal.Title>
-        </BootstrapModal.Header>
-        <BootstrapModal.Body>
-          <Form.Group controlId="formNewFileName">
-            <Form.Label>New Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={newFileName}
-              onChange={(e) => setNewFileName(e.target.value)}
-            />
-          </Form.Group>
-        </BootstrapModal.Body>
-        <BootstrapModal.Footer>
-          <Button variant="secondary" onClick={handleCloseRenameModal}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleRename}>
-            Rename
-          </Button>
-        </BootstrapModal.Footer>
-      </BootstrapModal>
+      <BootstrapModal className="custom-modal" show={renameModalIsOpen} onHide={handleCloseRenameModal}>
+  <BootstrapModal.Header closeButton>
+    <BootstrapModal.Title>Rename</BootstrapModal.Title>
+  </BootstrapModal.Header>
+  <BootstrapModal.Body>
+    <Form.Group controlId="formNewFileName">
+      <Form.Label>New Name</Form.Label>
+      <Form.Control
+        type="text"
+        value={newFileName}
+        onChange={(e) => setNewFileName(e.target.value)}
+      />
+    </Form.Group>
+  </BootstrapModal.Body>
+  <BootstrapModal.Footer>
+    <Button variant="secondary" onClick={handleCloseRenameModal}>
+      Cancel
+    </Button>
+    <Button variant="primary" onClick={handleRename}>
+      Rename
+    </Button>
+  </BootstrapModal.Footer>
+</BootstrapModal>
 
       {/* Create Folder Modal */}
-      <BootstrapModal
+      <BootstrapModal className="custom-modal"
         show={createFolderModalIsOpen}
         onHide={() => setCreateFolderModalIsOpen(false)}
       >
@@ -428,7 +428,7 @@ export default function Files({ isAdmin }) {
       </BootstrapModal>
 
       {/* QR Code Modal */}
-      <BootstrapModal
+      <BootstrapModal className="custom-modal"
         show={qrCodeModalIsOpen}
         onHide={() => setQrCodeModalIsOpen(false)}
       >

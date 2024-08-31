@@ -1,7 +1,8 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0d1117
-  ;  padding: 0;
+  background-color: hsl(217, 27%, 15%)
+  ;
+    padding: 0;
   overflow-x: hidden;
 }
 
@@ -9,8 +10,8 @@ body {
   max-width: 1200px;
   margin: 20px auto;
   padding: 15px;
-background-color: #0d1117;}
-
+  background-color: hsl(217, 27%, 15%)
+}
 .logoname {
   color: #e0e0e0;
 }
@@ -244,7 +245,7 @@ background-color: #0d1117;}
 }
 
 .settings-bar .btn {
-  background: rgba(0, 0, 0, 0.4) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
   /* Dark background for buttons */
   color: #e0e0e0; /* Light text color for buttons */
   border: 1px solid #444; /* Border color matching button */
@@ -253,10 +254,27 @@ background-color: #0d1117;}
 
 .settings-bar .btn:hover,
 .settings-bar .btn:focus {
-  background-color: #444; /* Slightly lighter background on hover */
+  background: rgba(0, 0, 0, 0.4) !important; /* Slightly lighter background on hover */
   border-color: #555; /* Slightly lighter border on hover */
-  color: #ffffff; /* Ensuring text remains readable */
+  color: #e0e0e0; /* Ensuring text remains readable */
 }
+
+.custom-modal .modal-content {
+  background-color: hsl(217, 27%, 15%)
+  ; /* Change the background color */
+  color: #e0e0e0 !important; /* Change the text color */
+  border-color: #e0e0e0;
+}
+
+.custom-modal .modal-header,
+.custom-modal .modal-footer {
+  background-color: hsl(217, 27%, 15%);
+  border-bottom: none !important; /* Optional: Remove border from header */
+}
+
+.custom-modal .modal-body {
+  background-color: hsl(217, 27%, 15%);}
+
 
 @media (max-width: 576px) {
   .custom-breadcrumb {
