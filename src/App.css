@@ -1,8 +1,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #ffffff;
-  margin: 0;
-  padding: 0;
+  background-color: #0d1117
+  ;  padding: 0;
   overflow-x: hidden;
 }
 
@@ -10,7 +9,10 @@ body {
   max-width: 1200px;
   margin: 20px auto;
   padding: 15px;
-  background-color: #ffffff;
+background-color: #0d1117;}
+
+.logoname {
+  color: #e0e0e0;
 }
 
 .text-center {
@@ -32,7 +34,8 @@ body {
 }
 
 .tile {
-  background-color: #ebebeb;
+  background: rgba(0, 0, 0, 0.4) !important;
+
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -55,6 +58,7 @@ body {
 }
 
 .tile-icon {
+  color: #e0e0e0;
   font-size: 2rem;
   margin-bottom: 10px;
 }
@@ -65,6 +69,7 @@ body {
 }
 
 .tile-name {
+  color: #e0e0e0;
   font-size: 1rem;
   font-weight: 500;
   margin-bottom: 10px;
@@ -88,25 +93,25 @@ body {
 
 .custom-breadcrumb .breadcrumb-item {
   font-size: 1rem;
-  color: #858585;
+  color:  #e0e0e0;
   text-decoration: none;
   display: flex;
   align-items: center;
 }
 
 .custom-breadcrumb .breadcrumb-item:hover {
-  color: #565656;
+  color: #e0e0e0;
 }
 
 .custom-breadcrumb .breadcrumb-item.active {
-  color: #6c757d;
+  color: #e0e0e0;
   font-weight: bold;
   cursor: default;
 }
 
 .breadcrumb-icon {
   margin-right: 0.5rem;
-  color: #858585;
+  color: #e0e0e0;
   font-size: 1.1rem;
 }
 
@@ -129,7 +134,8 @@ body {
 }
 
 .login-form {
-  background-color: #ffffff;
+  color: #e0e0e0;
+  background: rgba(0, 0, 0, 0.4) !important;
   max-width: 400px;
   width: 100%;
   margin: 0 auto;
@@ -138,7 +144,7 @@ body {
 
 .login-form h2 {
   font-size: 1.75rem;
-  color: #333;
+  color: #e0e0e0;
   margin-bottom: 20px;
 }
 
@@ -147,23 +153,20 @@ body {
 }
 
 .login-form .form-control:focus {
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  border-color: #80bdff;
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #e0e0e0;
 }
 
 .login-form .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #e0e0e0;
 }
 
 .login-form .btn-secondary:hover {
   background-color: #5a6268;
-  border-color: #545b62;
+  color: #e0e0e0;
 }
 
-.login-form a {
-  color: #007bff;
-}
 
 .login-form a:hover {
   text-decoration: underline;
@@ -177,10 +180,13 @@ body {
 .custom-table {
   font-size: 0.875rem;
   width: 100%;
+  border-color: rgba(0, 0, 0, 0.4) ;
 }
 
 .custom-table th,
 .custom-table td {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #e0e0e0;
   padding: 0.4rem;
   text-align: left;
 }
@@ -216,17 +222,40 @@ body {
   margin-bottom: 1.5rem;
 }
 
-.sidebar {
-  width: 250px;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #ebebeb;
-}
-
 .content {
   flex: 1;
   padding: 1rem;
+}
+
+.settings-bar {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 8px;
+ /* Darker border for contrast */
+}
+
+.settings-bar .form-control {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #e0e0e0; /* Light text for input */
+  border: 1px solid #444; /* Darker border for input */
+}
+
+.settings-bar .form-control::placeholder {
+  color: #999; /* Placeholder text color */
+}
+
+.settings-bar .btn {
+  background: rgba(0, 0, 0, 0.4) !important;
+  /* Dark background for buttons */
+  color: #e0e0e0; /* Light text color for buttons */
+  border: 1px solid #444; /* Border color matching button */
+  transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+}
+
+.settings-bar .btn:hover,
+.settings-bar .btn:focus {
+  background-color: #444; /* Slightly lighter background on hover */
+  border-color: #555; /* Slightly lighter border on hover */
+  color: #ffffff; /* Ensuring text remains readable */
 }
 
 @media (max-width: 576px) {

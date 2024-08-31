@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Table, Modal, Form, Alert } from "react-bootstrap";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faGear, faHome } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faGear, faHome, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -122,80 +122,76 @@ export default function AdminDashboard() {
             alt="Logo"
             style={{ width: "50px", height: "50px", marginRight: "10px" }}
           />
-          <h5 className="m-0">{process.env.REACT_APP_TITLE}</h5>
+          <h5 className="m-0 logoname">{process.env.REACT_APP_TITLE}</h5>
         </Link>
       </div>
 
-      <div className="d-flex">
-        {/* Sidebar */}
-        <div className="sidebar">
-          <Form className="mb-4">
-            <Form.Group controlId="searchInput">
-              <Form.Control
-                type="text"
-                placeholder="Search users..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
-          <Button variant="primary" className="w-100 mb-2" as={Link} to="/">
+      <div className="settings-bar d-flex justify-content-between align-items-center p-3">
+        <Form className="d-flex">
+          <Form.Control
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </Form>
+        <div>
+          <Button variant="primary" className="me-2" as={Link} to="/">
             <FontAwesomeIcon icon={faHome} /> Home
           </Button>
           <Button
             variant="success"
-            className="w-100"
+            className="me-2"
             onClick={() => setNewUserModal(true)}
           >
-            Add User
+            <FontAwesomeIcon icon={faPlus} /> Add User
           </Button>
         </div>
+      </div>
 
-        {/* Right Side Content */}
-        <div className="content flex-fill">
-          {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
+      <div className="content">
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
 
-          <div className="custom-table-container">
-            <Table striped bordered hover className="custom-table">
-              <thead>
-                <tr>
-                  <th className="username-column">Username</th>
-                  <th className="role-column">Role</th>
-                  <th className="actions-column">Actions</th>
+        <div className="custom-table-container">
+          <Table striped bordered hover className="custom-table">
+            <thead>
+              <tr>
+                <th className="username-column">Username</th>
+                <th className="role-column">Role</th>
+                <th className="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user.username}>
+                  <td className="username-column">{user.username}</td>
+                  <td className="role-column">{user.role}</td>
+                  <td className="actions-column">
+                    <Button
+                      variant="info"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedUser(user.username);
+                        setEditUsername(user.username);
+                        setEditUserModal(true);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faGear} />
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="ms-2"
+                      onClick={() => handleDeleteUser(user.username)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.username}>
-                    <td className="username-column">{user.username}</td>
-                    <td className="role-column">{user.role}</td>
-                    <td className="actions-column">
-                      <Button
-                        variant="info"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedUser(user.username);
-                          setEditUsername(user.username);
-                          setEditUserModal(true);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faGear} />
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        className="ml-2"
-                        onClick={() => handleDeleteUser(user.username)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+              ))}
+            </tbody>
+          </Table>
         </div>
       </div>
 

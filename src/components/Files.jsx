@@ -69,6 +69,10 @@ export default function Files({ isAdmin }) {
   }, [wildcardPath]);
 
   useEffect(() => {
+    // Log the search query and files to debug
+    console.log("Search Query:", searchQuery);
+    console.log("Files:", files);
+
     const results = files.filter((file) =>
       file.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -233,45 +237,43 @@ export default function Files({ isAdmin }) {
             alt="Logo"
             style={{ width: "50px", height: "50px", marginRight: "10px" }}
           />
-          <h5 className="m-0">{process.env.REACT_APP_TITLE}</h5>
+          <h5 className="m-0 logoname">{process.env.REACT_APP_TITLE}</h5>
         </Link>
       </div>
-      <div className="d-flex">
-        {/* Left Side Navigation */}
-        <div className="sidebar">
-          <Form className="mb-4">
-            <Form.Group controlId="searchInput">
-              <Form.Control
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
+      <div className="settings-bar d-flex justify-content-between align-items-center p-3">
+        <Form className="d-flex">
+          <Form.Control
+            type="text"
+            placeholder="Search..."
+            className="me-2 custom-btn"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} // Handle search input change
+          />
+        </Form>
+        <div>
           <Button
-            variant="primary"
             onClick={() => setUploadModalIsOpen(true)}
-            className="w-100 mb-2"
+            className="me-2 custom-btn"
           >
             <FontAwesomeIcon icon={faUpload} /> Upload File
           </Button>
           <Button
-            variant="secondary"
             onClick={() => setCreateFolderModalIsOpen(true)}
-            className="w-100 mb-2"
+            className="me-2 custom-btn"
           >
             <FontAwesomeIcon icon={faPlus} /> New Folder
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => navigate("/admin")}
-            className="w-100"
-            style={{ display: isAdmin ? "block" : "none" }}
-          >
-            <FontAwesomeIcon icon={faGear} /> Admin
-          </Button>
+          {isAdmin && (
+            <Button
+              className="me-2 custom-btn"
+              onClick={() => navigate("/admin")}
+            >
+              <FontAwesomeIcon icon={faGear} /> Admin
+            </Button>
+          )}
         </div>
+      </div>
+      <div className="d-flex">
         {/* Right Side Content */}
         <div className="content flex-fill">
           <div className="d-flex justify-content-between mb-4">
