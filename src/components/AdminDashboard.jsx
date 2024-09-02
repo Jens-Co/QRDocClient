@@ -7,22 +7,26 @@ import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [newUserModal, setNewUserModal] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
+  const [newGroup, setNewGroup] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editUserModal, setEditUserModal] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editPassword, setEditPassword] = useState("");
+  const [editGroup, setEditGroup] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
   useEffect(() => {
     fetchUsers();
+    fetchGroups();
   }, []);
 
   const fetchUsers = async () => {
@@ -34,6 +38,18 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error fetching users:", error);
       setError("Error fetching users. Please try again.");
+    }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get(`${backendHost}/admin/groups`, {
+        withCredentials: true,
+      });
+      setGroups(response.data);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      setError("Error fetching groups. Please try again.");
     }
   };
 
@@ -52,6 +68,7 @@ export default function AdminDashboard() {
           username: newUsername,
           password: newPassword,
           role: newRole,
+          group: newGroup
         },
         { withCredentials: true }
       );
@@ -60,6 +77,7 @@ export default function AdminDashboard() {
       setNewUsername("");
       setNewPassword("");
       setNewRole("user");
+      setNewGroup("");
       setSuccess("User added successfully.");
     } catch (error) {
       console.error("Error adding user:", error);
@@ -72,10 +90,9 @@ export default function AdminDashboard() {
     setSuccess(null);
     try {
       await axios.put(
-        `${backendHost}/admin/users/${selectedUser}`,
+        `${backendHost}/admin/users/${selectedUser}/group`,
         {
-          newUsername: editUsername,
-          newPassword: editPassword,
+          group: editGroup
         },
         { withCredentials: true }
       );
@@ -83,6 +100,7 @@ export default function AdminDashboard() {
       setEditUserModal(false);
       setEditUsername("");
       setEditPassword("");
+      setEditGroup("");
       setSuccess("User updated successfully.");
     } catch (error) {
       console.error("Error updating user:", error);
@@ -159,6 +177,7 @@ export default function AdminDashboard() {
               <tr>
                 <th className="username-column">Username</th>
                 <th className="role-column">Role</th>
+                <th className="group-column">Group</th>
                 <th className="actions-column">Actions</th>
               </tr>
             </thead>
@@ -167,6 +186,7 @@ export default function AdminDashboard() {
                 <tr key={user.username}>
                   <td className="username-column">{user.username}</td>
                   <td className="role-column">{user.role}</td>
+                  <td className="group-column">{user.group}</td>
                   <td className="actions-column">
                     <Button
                       variant="info"
@@ -174,6 +194,7 @@ export default function AdminDashboard() {
                       onClick={() => {
                         setSelectedUser(user.username);
                         setEditUsername(user.username);
+                        setEditGroup(user.group);
                         setEditUserModal(true);
                       }}
                     >
@@ -230,6 +251,20 @@ export default function AdminDashboard() {
                 <option value="admin">Admin</option>
               </Form.Select>
             </Form.Group>
+            <Form.Group controlId="formGroup" className="mt-3">
+              <Form.Label>Group</Form.Label>
+              <Form.Select
+                value={newGroup}
+                onChange={(e) => setNewGroup(e.target.value)}
+              >
+                <option value="">Select group</option>
+                {groups.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -266,6 +301,20 @@ export default function AdminDashboard() {
                 onChange={(e) => setEditPassword(e.target.value)}
                 placeholder="Enter new password"
               />
+            </Form.Group>
+            <Form.Group controlId="formEditGroup" className="mt-3">
+              <Form.Label>Group</Form.Label>
+              <Form.Select
+                value={editGroup}
+                onChange={(e) => setEditGroup(e.target.value)}
+              >
+                <option value="">Select group</option>
+                {groups.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
           </Form>
         </Modal.Body>

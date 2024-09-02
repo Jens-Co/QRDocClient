@@ -24,12 +24,18 @@ export default function Files({ isAdmin }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadModalIsOpen, setUploadModalIsOpen] = useState(false);
   const [renameModalIsOpen, setRenameModalIsOpen] = useState(false);
+  const [permissionsModalIsOpen, setPermissionsModalIsOpen] = useState(false);
+const [currentPermissions, setCurrentPermissions] = useState([]);
+const [fileForPermissions, setFileForPermissions] = useState(null);
+
   const [createFolderModalIsOpen, setCreateFolderModalIsOpen] = useState(false);
   const [qrCodeModalIsOpen, setQrCodeModalIsOpen] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [newFileName, setNewFileName] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
+  const [groupList, setGroupList] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
   const { "*": wildcardPath } = useParams();
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [currentPath, setCurrentPath] = useState(
@@ -79,7 +85,14 @@ export default function Files({ isAdmin }) {
     setFilteredFiles(results);
   }, [searchQuery, files]);
 
+  // Fetch list of available groups
+  useEffect(() => {
+    // Simulated fetch groups, replace with your actual logic
+    setGroupList(["Default", "userGroup", "adminGroup"]);
+  }, []);
+
   const handleShowQrCode = (file) => {
+    console.log("Showing QR Code for file:", file);
     setQrCodeUrl(file.qrCode);
     setQrCodeModalIsOpen(true);
   };
@@ -158,14 +171,13 @@ export default function Files({ isAdmin }) {
   const handleCreateFolder = async () => {
     try {
       await axios.post(
-        `${backendHost}/api/files/${encodeURIComponent(
-          currentPath
-        )}/create-folder`,
-        { name: newFolderName },
+        `${backendHost}/api/files/${encodeURIComponent(currentPath)}/create-folder`,
+        { name: newFolderName, groups: selectedGroups },
         { withCredentials: true }
       );
       fetchFiles();
       setNewFolderName("");
+      setSelectedGroups([]);
       setCreateFolderModalIsOpen(false);
     } catch (error) {
       console.error("Error creating folder:", error);
@@ -195,6 +207,39 @@ export default function Files({ isAdmin }) {
       }
     }
   };
+
+  const handleShowPermissions = async (file) => {
+    setFileForPermissions(file);
+    try {
+      const filePath = encodeURIComponent(`${currentPath}/${file.name}`);
+      const response = await axios.get(
+        `${backendHost}/admin/permissions/${filePath}`, 
+        { withCredentials: true }
+      );
+      setCurrentPermissions(response.data.permissions || []);
+      setPermissionsModalIsOpen(true);
+    } catch (error) {
+      console.error("Error fetching permissions:", error);
+    }
+  };
+  
+
+  const handleSavePermissions = async () => {
+    if (fileForPermissions) {
+      try {
+        await axios.put(
+          `${backendHost}/admin/permissions`,
+          { path: `${currentPath}/${fileForPermissions.name}`, groups: currentPermissions },
+          { withCredentials: true }
+        );
+        setPermissionsModalIsOpen(false);
+        fetchFiles(); // Refresh files list
+      } catch (error) {
+        console.error("Error saving permissions:", error);
+      }
+    }
+  };
+  
 
   const handlePrintQrCode = () => {
     if (qrCodeRef.current) {
@@ -247,7 +292,7 @@ export default function Files({ isAdmin }) {
             placeholder="Search..."
             className="me-2 custom-btn"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)} // Handle search input change
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </Form>
         <div>
@@ -274,7 +319,6 @@ export default function Files({ isAdmin }) {
         </div>
       </div>
       <div className="d-flex">
-        {/* Right Side Content */}
         <div className="content flex-fill">
           <div className="d-flex justify-content-between mb-4">
             <Breadcrumb currentPath={currentPath} />
@@ -320,6 +364,18 @@ export default function Files({ isAdmin }) {
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </Button>
+                      {isAdmin && (
+    <Button
+      variant="link"
+      onClick={(e) => {
+        e.stopPropagation();
+        handleShowPermissions(file);
+      }}
+      className="text-info"
+    >
+      <FontAwesomeIcon icon={faGear} />
+    </Button>
+  )}
                     </div>
                   </div>
                 </div>
@@ -336,7 +392,6 @@ export default function Files({ isAdmin }) {
         onClose={() => setShowImageViewer(false)}
       />
 
-      {/* Existing Modals */}
       {/* Upload Modal */}
       <BootstrapModal className="custom-modal"
         show={uploadModalIsOpen}
@@ -372,28 +427,72 @@ export default function Files({ isAdmin }) {
 
       {/* Rename Modal */}
       <BootstrapModal className="custom-modal" show={renameModalIsOpen} onHide={handleCloseRenameModal}>
+        <BootstrapModal.Header closeButton>
+          <BootstrapModal.Title>Rename</BootstrapModal.Title>
+        </BootstrapModal.Header>
+        <BootstrapModal.Body>
+          <Form.Group controlId="formNewFileName">
+            <Form.Label>New Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+            />
+          </Form.Group>
+        </BootstrapModal.Body>
+        <BootstrapModal.Footer>
+          <Button variant="secondary" onClick={handleCloseRenameModal}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleRename}>
+            Rename
+          </Button>
+        </BootstrapModal.Footer>
+      </BootstrapModal>
+
+      /* Permissions Modal */
+<BootstrapModal className="custom-modal"
+  show={permissionsModalIsOpen}
+  onHide={() => setPermissionsModalIsOpen(false)}
+>
   <BootstrapModal.Header closeButton>
-    <BootstrapModal.Title>Rename</BootstrapModal.Title>
+    <BootstrapModal.Title>Permissions</BootstrapModal.Title>
   </BootstrapModal.Header>
   <BootstrapModal.Body>
-    <Form.Group controlId="formNewFileName">
-      <Form.Label>New Name</Form.Label>
-      <Form.Control
-        type="text"
-        value={newFileName}
-        onChange={(e) => setNewFileName(e.target.value)}
-      />
-    </Form.Group>
+    {fileForPermissions && (
+      <>
+        <Form.Group controlId="formPermissions">
+          <Form.Label>Select Groups</Form.Label>
+          {groupList.map((group) => (
+            <Form.Check
+              key={group}
+              type="radio"
+              label={group}
+              value={group}
+              checked={currentPermissions.includes(group)}
+              onChange={() => {
+                if (currentPermissions.includes(group)) {
+                  setCurrentPermissions(currentPermissions.filter((g) => g !== group));
+                } else {
+                  setCurrentPermissions([...currentPermissions, group]);
+                }
+              }}
+            />
+          ))}
+        </Form.Group>
+      </>
+    )}
   </BootstrapModal.Body>
   <BootstrapModal.Footer>
-    <Button variant="secondary" onClick={handleCloseRenameModal}>
+    <Button variant="secondary" onClick={() => setPermissionsModalIsOpen(false)}>
       Cancel
     </Button>
-    <Button variant="primary" onClick={handleRename}>
-      Rename
+    <Button variant="primary" onClick={handleSavePermissions}>
+      Save Changes
     </Button>
   </BootstrapModal.Footer>
 </BootstrapModal>
+
 
       {/* Create Folder Modal */}
       <BootstrapModal className="custom-modal"
@@ -413,6 +512,21 @@ export default function Files({ isAdmin }) {
               placeholder="Enter folder name"
             />
           </Form.Group>
+          {isAdmin && (
+            <Form.Group controlId="formFolderGroups" className="mt-3">
+              <Form.Label>Select Groups</Form.Label>
+              <Form.Control
+                as="select"
+                multiple
+                value={selectedGroups}
+                onChange={(e) => setSelectedGroups([...e.target.selectedOptions].map(option => option.value))}
+              >
+                {groupList.map(group => (
+                  <option key={group} value={group}>{group}</option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          )}
         </BootstrapModal.Body>
         <BootstrapModal.Footer>
           <Button
