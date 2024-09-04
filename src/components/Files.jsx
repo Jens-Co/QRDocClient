@@ -85,10 +85,19 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
     setFilteredFiles(results);
   }, [searchQuery, files]);
 
-  // Fetch list of available groups
   useEffect(() => {
-    // Simulated fetch groups, replace with your actual logic
-    setGroupList(["Default", "userGroup", "adminGroup"]);
+    const fetchGroups = async () => {
+      try {
+        const response = await axios.get(`${backendHost}/admin/groups`, {
+          withCredentials: true,
+        });
+        setGroupList(response.data);
+      } catch (error) {
+        console.error("Error fetching groups:", error);
+      }
+    };
+  
+    fetchGroups();
   }, []);
 
   const handleShowQrCode = (file) => {

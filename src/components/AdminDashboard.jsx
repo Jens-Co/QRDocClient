@@ -9,10 +9,12 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
   const [newUserModal, setNewUserModal] = useState(false);
+  const [groupSettingsModal, setGroupSettingsModal] = useState(false); // New state for group settings modal
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
   const [newGroup, setNewGroup] = useState("");
+  const [newGroupName, setNewGroupName] = useState(""); // State for new group name
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -53,6 +55,44 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddGroup = async () => {
+    setError(null);
+    setSuccess(null);
+    if (!newGroupName) {
+      setError("Group name is required.");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${backendHost}/admin/groups`,
+        { group: newGroupName },
+        { withCredentials: true }
+      );
+      fetchGroups();
+      setNewGroupName("");
+      setSuccess("Group added successfully.");
+    } catch (error) {
+      console.error("Error adding group:", error);
+      setError("Error adding group. Please try again.");
+    }
+  };
+
+  const handleDeleteGroup = async (group) => {
+    setError(null);
+    setSuccess(null);
+    try {
+      await axios.delete(`${backendHost}/admin/groups/${group}`, {
+        withCredentials: true,
+      });
+      fetchGroups();
+      setSuccess("Group deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      setError("Error deleting group. Please try again.");
+    }
+  };
+
   const handleAddUser = async () => {
     setError(null);
     setSuccess(null);
@@ -88,12 +128,22 @@ export default function AdminDashboard() {
   const handleEditUser = async () => {
     setError(null);
     setSuccess(null);
+    const updateData = {};
+    
+    if (editUsername) {
+      updateData.newUsername = editUsername;
+    }
+    if (editPassword) {
+      updateData.newPassword = editPassword;
+    }
+    if (editGroup) {
+      updateData.group = editGroup;
+    }
+    
     try {
       await axios.put(
-        `${backendHost}/admin/users/${selectedUser}/group`,
-        {
-          group: editGroup
-        },
+        `${backendHost}/admin/users/${selectedUser}`,
+        updateData,
         { withCredentials: true }
       );
       fetchUsers();
@@ -107,6 +157,7 @@ export default function AdminDashboard() {
       setError("Error updating user. Please try again.");
     }
   };
+  
 
   const handleDeleteUser = async (username) => {
     setError(null);
@@ -163,6 +214,13 @@ export default function AdminDashboard() {
             onClick={() => setNewUserModal(true)}
           >
             <FontAwesomeIcon icon={faPlus} /> Add User
+          </Button>
+          <Button
+            variant="secondary"
+            className="me-2"
+            onClick={() => setGroupSettingsModal(true)} // Open the group settings modal
+          >
+            <FontAwesomeIcon icon={faGear} /> Group Settings
           </Button>
         </div>
       </div>
@@ -279,51 +337,92 @@ export default function AdminDashboard() {
 
       {/* Modal for Editing User */}
       <Modal show={editUserModal} onHide={() => setEditUserModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Edit User</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group controlId="formEditUsername">
+        <Form.Label>Username</Form.Label>
+        <Form.Control
+          type="text"
+          value={editUsername}
+          onChange={(e) => setEditUsername(e.target.value)}
+          placeholder="Enter new username"
+        />
+      </Form.Group>
+      <Form.Group controlId="formEditPassword" className="mt-3">
+        <Form.Label>Password</Form.Label>
+        <Form.Control
+          type="password"
+          value={editPassword}
+          onChange={(e) => setEditPassword(e.target.value)}
+          placeholder="Enter new password"
+        />
+      </Form.Group>
+      <Form.Group controlId="formEditGroup" className="mt-3">
+        <Form.Label>Group</Form.Label>
+        <Form.Select
+          value={editGroup}
+          onChange={(e) => setEditGroup(e.target.value)}
+        >
+          <option value="">Select group</option>
+          {groups.map((group) => (
+            <option key={group} value={group}>
+              {group}
+            </option>
+          ))}
+        </Form.Select>
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setEditUserModal(false)}>
+      Close
+    </Button>
+    <Button variant="primary" onClick={handleEditUser}>
+      Save Changes
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
+      {/* Modal for Group Settings */}
+      <Modal show={groupSettingsModal} onHide={() => setGroupSettingsModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit User</Modal.Title>
+          <Modal.Title>Group Settings</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formEditUsername">
-              <Form.Label>Username</Form.Label>
+            <Form.Group controlId="formNewGroupName">
+              <Form.Label>New Group Name</Form.Label>
               <Form.Control
                 type="text"
-                value={editUsername}
-                onChange={(e) => setEditUsername(e.target.value)}
-                placeholder="Enter new username"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Enter new group name"
               />
             </Form.Group>
-            <Form.Group controlId="formEditPassword" className="mt-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                value={editPassword}
-                onChange={(e) => setEditPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-            </Form.Group>
-            <Form.Group controlId="formEditGroup" className="mt-3">
-              <Form.Label>Group</Form.Label>
-              <Form.Select
-                value={editGroup}
-                onChange={(e) => setEditGroup(e.target.value)}
-              >
-                <option value="">Select group</option>
-                {groups.map((group) => (
-                  <option key={group} value={group}>
-                    {group}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
+            <Button variant="primary" className="mt-3" onClick={handleAddGroup}>
+              Add Group
+            </Button>
           </Form>
+          <hr />
+          <h5>Existing Groups</h5>
+          <ul className="list-group">
+            {groups.map((group) => (
+              <li key={group} className="list-group-item d-flex justify-content-between align-items-center">
+                {group}
+                <Button variant="danger" size="sm" onClick={() => handleDeleteGroup(group)}>
+                  <FontAwesomeIcon icon={faTrash} />
+                </Button>
+              </li>
+            ))}
+          </ul>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setEditUserModal(false)}>
+          <Button variant="secondary" onClick={() => setGroupSettingsModal(false)}>
             Close
-          </Button>
-          <Button variant="primary" onClick={handleEditUser}>
-            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
