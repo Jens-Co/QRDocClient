@@ -25,8 +25,8 @@ export default function Files({ isAdmin }) {
   const [uploadModalIsOpen, setUploadModalIsOpen] = useState(false);
   const [renameModalIsOpen, setRenameModalIsOpen] = useState(false);
   const [permissionsModalIsOpen, setPermissionsModalIsOpen] = useState(false);
-const [currentPermissions, setCurrentPermissions] = useState([]);
-const [fileForPermissions, setFileForPermissions] = useState(null);
+  const [currentPermissions, setCurrentPermissions] = useState([]);
+  const [fileForPermissions, setFileForPermissions] = useState(null);
 
   const [createFolderModalIsOpen, setCreateFolderModalIsOpen] = useState(false);
   const [qrCodeModalIsOpen, setQrCodeModalIsOpen] = useState(false);
@@ -75,10 +75,6 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
   }, [wildcardPath]);
 
   useEffect(() => {
-    // Log the search query and files to debug
-    console.log("Search Query:", searchQuery);
-    console.log("Files:", files);
-
     const results = files.filter((file) =>
       file.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -96,7 +92,7 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
         console.error("Error fetching groups:", error);
       }
     };
-  
+
     fetchGroups();
   }, []);
 
@@ -180,7 +176,9 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
   const handleCreateFolder = async () => {
     try {
       await axios.post(
-        `${backendHost}/api/files/${encodeURIComponent(currentPath)}/create-folder`,
+        `${backendHost}/api/files/${encodeURIComponent(
+          currentPath
+        )}/create-folder`,
         { name: newFolderName, groups: selectedGroups },
         { withCredentials: true }
       );
@@ -222,7 +220,7 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
     try {
       const filePath = encodeURIComponent(`${currentPath}/${file.name}`);
       const response = await axios.get(
-        `${backendHost}/admin/permissions/${filePath}`, 
+        `${backendHost}/admin/permissions/${filePath}`,
         { withCredentials: true }
       );
       setCurrentPermissions(response.data.permissions || []);
@@ -232,19 +230,41 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
     }
   };
   
-
   const handleSavePermissions = async () => {
     if (fileForPermissions) {
       try {
-        await axios.put(
+        const response = await axios.put(
           `${backendHost}/admin/permissions`,
-          { path: `${currentPath}/${fileForPermissions.name}`, groups: currentPermissions },
+          {
+            folderPath: `${currentPath}/${fileForPermissions.name}`,
+            groups: currentPermissions,
+          },
           { withCredentials: true }
         );
+        console.log("Save response:", response); // Add this to log the response
         setPermissionsModalIsOpen(false);
         fetchFiles(); // Refresh files list
       } catch (error) {
         console.error("Error saving permissions:", error);
+      }
+    }
+  };
+  
+  const handleRemovePermission = async (permission) => {
+    if (fileForPermissions) {
+      try {
+        const response = await axios.put(
+          `${backendHost}/admin/permissions/remove`,
+          {
+            path: `${currentPath}/${fileForPermissions.name}`,
+            group: permission,
+          },
+          { withCredentials: true }
+        );
+        console.log("Remove response:", response); // Add this to log the response
+        setCurrentPermissions(currentPermissions.filter((p) => p !== permission));
+      } catch (error) {
+        console.error("Error removing permission:", error);
       }
     }
   };
@@ -374,17 +394,17 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
                         <FontAwesomeIcon icon={faTrash} />
                       </Button>
                       {isAdmin && (
-    <Button
-      variant="link"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleShowPermissions(file);
-      }}
-      className="text-info"
-    >
-      <FontAwesomeIcon icon={faGear} />
-    </Button>
-  )}
+                        <Button
+                          variant="link"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleShowPermissions(file);
+                          }}
+                          className="text-info"
+                        >
+                          <FontAwesomeIcon icon={faGear} />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -402,7 +422,8 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
       />
 
       {/* Upload Modal */}
-      <BootstrapModal className="custom-modal"
+      <BootstrapModal
+        className="custom-modal"
         show={uploadModalIsOpen}
         onHide={() => setUploadModalIsOpen(false)}
       >
@@ -435,7 +456,11 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
       </BootstrapModal>
 
       {/* Rename Modal */}
-      <BootstrapModal className="custom-modal" show={renameModalIsOpen} onHide={handleCloseRenameModal}>
+      <BootstrapModal
+        className="custom-modal"
+        show={renameModalIsOpen}
+        onHide={handleCloseRenameModal}
+      >
         <BootstrapModal.Header closeButton>
           <BootstrapModal.Title>Rename</BootstrapModal.Title>
         </BootstrapModal.Header>
@@ -459,8 +484,9 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
         </BootstrapModal.Footer>
       </BootstrapModal>
 
-      /* Permissions Modal */
-<BootstrapModal className="custom-modal"
+     {/* Permissions Modal */}
+<BootstrapModal
+  className="custom-modal"
   show={permissionsModalIsOpen}
   onHide={() => setPermissionsModalIsOpen(false)}
 >
@@ -470,24 +496,46 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
   <BootstrapModal.Body>
     {fileForPermissions && (
       <>
-        <Form.Group controlId="formPermissions">
-          <Form.Label>Select Groups</Form.Label>
-          {groupList.map((group) => (
-            <Form.Check
-              key={group}
-              type="radio"
-              label={group}
-              value={group}
-              checked={currentPermissions.includes(group)}
-              onChange={() => {
-                if (currentPermissions.includes(group)) {
-                  setCurrentPermissions(currentPermissions.filter((g) => g !== group));
-                } else {
-                  setCurrentPermissions([...currentPermissions, group]);
-                }
-              }}
-            />
-          ))}
+        <h5>Current Permissions</h5>
+        <ul className="list-group mb-3">
+          {currentPermissions.length > 0 ? (
+            currentPermissions.map((perm, index) => (
+              <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                {perm}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => handleRemovePermission(perm)}
+                >
+                  Remove
+                </Button>
+              </li>
+            ))
+          ) : (
+            <li className="list-group-item">No permissions assigned</li>
+          )}
+        </ul>
+
+        <Form.Group controlId="formAddPermission">
+          <Form.Label>Add New Permission</Form.Label>
+          <Form.Control
+            as="select"
+            onChange={(e) => {
+              const selectedPerm = e.target.value;
+              if (selectedPerm && !currentPermissions.includes(selectedPerm)) {
+                setCurrentPermissions([...currentPermissions, selectedPerm]);
+              }
+            }}
+          >
+            <option value="">Select Permission</option>
+            {groupList
+              .filter((group) => !currentPermissions.includes(group))
+              .map((group, index) => (
+                <option key={index} value={group}>
+                  {group}
+                </option>
+              ))}
+          </Form.Control>
         </Form.Group>
       </>
     )}
@@ -502,9 +550,9 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
   </BootstrapModal.Footer>
 </BootstrapModal>
 
-
       {/* Create Folder Modal */}
-      <BootstrapModal className="custom-modal"
+      <BootstrapModal
+        className="custom-modal"
         show={createFolderModalIsOpen}
         onHide={() => setCreateFolderModalIsOpen(false)}
       >
@@ -528,10 +576,16 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
                 as="select"
                 multiple
                 value={selectedGroups}
-                onChange={(e) => setSelectedGroups([...e.target.selectedOptions].map(option => option.value))}
+                onChange={(e) =>
+                  setSelectedGroups(
+                    [...e.target.selectedOptions].map((option) => option.value)
+                  )
+                }
               >
-                {groupList.map(group => (
-                  <option key={group} value={group}>{group}</option>
+                {groupList.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
                 ))}
               </Form.Control>
             </Form.Group>
@@ -551,7 +605,8 @@ const [fileForPermissions, setFileForPermissions] = useState(null);
       </BootstrapModal>
 
       {/* QR Code Modal */}
-      <BootstrapModal className="custom-modal"
+      <BootstrapModal
+        className="custom-modal"
         show={qrCodeModalIsOpen}
         onHide={() => setQrCodeModalIsOpen(false)}
       >
