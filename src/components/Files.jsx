@@ -241,9 +241,8 @@ export default function Files({ isAdmin }) {
           },
           { withCredentials: true }
         );
-        console.log("Save response:", response); // Add this to log the response
         setPermissionsModalIsOpen(false);
-        fetchFiles(); // Refresh files list
+        fetchFiles(); 
       } catch (error) {
         console.error("Error saving permissions:", error);
       }
@@ -261,7 +260,6 @@ export default function Files({ isAdmin }) {
           },
           { withCredentials: true }
         );
-        console.log("Remove response:", response); // Add this to log the response
         setCurrentPermissions(currentPermissions.filter((p) => p !== permission));
       } catch (error) {
         console.error("Error removing permission:", error);
