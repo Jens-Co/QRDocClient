@@ -229,7 +229,7 @@ export default function Files({ isAdmin }) {
       console.error("Error fetching permissions:", error);
     }
   };
-  
+
   const handleSavePermissions = async () => {
     if (fileForPermissions) {
       try {
@@ -242,13 +242,13 @@ export default function Files({ isAdmin }) {
           { withCredentials: true }
         );
         setPermissionsModalIsOpen(false);
-        fetchFiles(); 
+        fetchFiles();
       } catch (error) {
         console.error("Error saving permissions:", error);
       }
     }
   };
-  
+
   const handleRemovePermission = async (permission) => {
     if (fileForPermissions) {
       try {
@@ -260,13 +260,14 @@ export default function Files({ isAdmin }) {
           },
           { withCredentials: true }
         );
-        setCurrentPermissions(currentPermissions.filter((p) => p !== permission));
+        setCurrentPermissions(
+          currentPermissions.filter((p) => p !== permission)
+        );
       } catch (error) {
         console.error("Error removing permission:", error);
       }
     }
   };
-  
 
   const handlePrintQrCode = () => {
     if (qrCodeRef.current) {
@@ -482,71 +483,83 @@ export default function Files({ isAdmin }) {
         </BootstrapModal.Footer>
       </BootstrapModal>
 
-     {/* Permissions Modal */}
-<BootstrapModal
-  className="custom-modal"
-  show={permissionsModalIsOpen}
-  onHide={() => setPermissionsModalIsOpen(false)}
->
-  <BootstrapModal.Header closeButton>
-    <BootstrapModal.Title>Permissions</BootstrapModal.Title>
-  </BootstrapModal.Header>
-  <BootstrapModal.Body>
-    {fileForPermissions && (
-      <>
-        <h5>Current Permissions</h5>
-        <ul className="list-group mb-3">
-          {currentPermissions.length > 0 ? (
-            currentPermissions.map((perm, index) => (
-              <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                {perm}
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleRemovePermission(perm)}
-                >
-                  Remove
-                </Button>
-              </li>
-            ))
-          ) : (
-            <li className="list-group-item">No permissions assigned</li>
-          )}
-        </ul>
+      {/* Permissions Modal */}
+      <BootstrapModal
+        className="custom-modal"
+        show={permissionsModalIsOpen}
+        onHide={() => setPermissionsModalIsOpen(false)}
+      >
+        <BootstrapModal.Header closeButton>
+          <BootstrapModal.Title>Permissions</BootstrapModal.Title>
+        </BootstrapModal.Header>
+        <BootstrapModal.Body>
+          {fileForPermissions && (
+            <>
+              <h5>Current Permissions</h5>
+              <ul className="list-group mb-3">
+                {currentPermissions.length > 0 ? (
+                  currentPermissions.map((perm, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                      {perm}
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleRemovePermission(perm)}
+                      >
+                        Remove
+                      </Button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="list-group-item">No permissions assigned</li>
+                )}
+              </ul>
 
-        <Form.Group controlId="formAddPermission">
-          <Form.Label>Add New Permission</Form.Label>
-          <Form.Control
-            as="select"
-            onChange={(e) => {
-              const selectedPerm = e.target.value;
-              if (selectedPerm && !currentPermissions.includes(selectedPerm)) {
-                setCurrentPermissions([...currentPermissions, selectedPerm]);
-              }
-            }}
+              <Form.Group controlId="formAddPermission">
+                <Form.Label>Add New Permission</Form.Label>
+                <Form.Control
+                  as="select"
+                  onChange={(e) => {
+                    const selectedPerm = e.target.value;
+                    if (
+                      selectedPerm &&
+                      !currentPermissions.includes(selectedPerm)
+                    ) {
+                      setCurrentPermissions([
+                        ...currentPermissions,
+                        selectedPerm,
+                      ]);
+                    }
+                  }}
+                >
+                  <option value="">Select Permission</option>
+                  {groupList
+                    .filter((group) => !currentPermissions.includes(group))
+                    .map((group, index) => (
+                      <option key={index} value={group}>
+                        {group}
+                      </option>
+                    ))}
+                </Form.Control>
+              </Form.Group>
+            </>
+          )}
+        </BootstrapModal.Body>
+        <BootstrapModal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setPermissionsModalIsOpen(false)}
           >
-            <option value="">Select Permission</option>
-            {groupList
-              .filter((group) => !currentPermissions.includes(group))
-              .map((group, index) => (
-                <option key={index} value={group}>
-                  {group}
-                </option>
-              ))}
-          </Form.Control>
-        </Form.Group>
-      </>
-    )}
-  </BootstrapModal.Body>
-  <BootstrapModal.Footer>
-    <Button variant="secondary" onClick={() => setPermissionsModalIsOpen(false)}>
-      Cancel
-    </Button>
-    <Button variant="primary" onClick={handleSavePermissions}>
-      Save Changes
-    </Button>
-  </BootstrapModal.Footer>
-</BootstrapModal>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSavePermissions}>
+            Save Changes
+          </Button>
+        </BootstrapModal.Footer>
+      </BootstrapModal>
 
       {/* Create Folder Modal */}
       <BootstrapModal
@@ -568,7 +581,7 @@ export default function Files({ isAdmin }) {
             />
           </Form.Group>
           {isAdmin && (
-            <Form.Group controlId="formFolderGroups" className="mt-3">
+            <Form.Group controlId="formFileGroups" className="mt-3">
               <Form.Label>Select Groups</Form.Label>
               <Form.Control
                 as="select"
