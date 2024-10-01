@@ -9,12 +9,12 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [groups, setGroups] = useState([]);
   const [newUserModal, setNewUserModal] = useState(false);
-  const [groupSettingsModal, setGroupSettingsModal] = useState(false); // New state for group settings modal
+  const [groupSettingsModal, setGroupSettingsModal] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
   const [newGroup, setNewGroup] = useState("");
-  const [newGroupName, setNewGroupName] = useState(""); // State for new group name
+  const [newGroupName, setNewGroupName] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -79,8 +79,9 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteGroup = async (group) => {
-    setError(null);
-    setSuccess(null);
+    setError(null); // Clear any previous error
+    setSuccess(null); // Clear any previous success message
+    
     try {
       await axios.delete(`${backendHost}/admin/groups/${group}`, {
         withCredentials: true,
@@ -89,7 +90,12 @@ export default function AdminDashboard() {
       setSuccess("Group deleted successfully.");
     } catch (error) {
       console.error("Error deleting group:", error);
-      setError("Error deleting group. Please try again.");
+      
+      if (error.response && error.response.status === 400) {
+        setError(error.response.data.error || "Error deleting group.");
+      } else {
+        setError("Error deleting group. Please try again.");
+      }
     }
   };
 
@@ -218,7 +224,7 @@ export default function AdminDashboard() {
           <Button
             variant="secondary"
             className="me-2"
-            onClick={() => setGroupSettingsModal(true)} // Open the group settings modal
+            onClick={() => setGroupSettingsModal(true)}
           >
             <FontAwesomeIcon icon={faGear} /> Group Settings
           </Button>
